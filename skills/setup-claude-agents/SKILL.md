@@ -51,7 +51,21 @@ Note any items that need credentials (e.g., Twilio needs `TWILIO_ACCOUNT_SID`, `
 
 After user confirmation:
 
-**MCP Servers**: Run the `claude mcp add` command from the registry via Bash.
+**MCP Servers**: Write entries directly to `.mcp.json` in the project root. Do NOT use `claude mcp add` — it fails inside Claude Code sessions with a "nested session" error.
+
+Read `.mcp.json` first (create `{"mcpServers":{}}` if missing), merge new server entries from the registry into `mcpServers`, and write the file back. Example:
+
+```json
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    }
+  }
+}
+```
 
 **Skills**: Download SKILL.md files to `.claude/skills/<name>/SKILL.md`:
 ```bash
@@ -89,7 +103,7 @@ If `.claude/.setup-manifest.json` exists:
 3. **Remove stale items**:
    - Agents: delete `.claude/agents/<name>.md`
    - Skills: delete `.claude/skills/<name>/` directory
-   - MCP servers: run `claude mcp remove --scope project <name>`
+   - MCP servers: remove the entry from `.mcp.json` `mcpServers` object
 4. Write the updated manifest
 
 Only touch items listed in the manifest. Never remove manually-added items.
@@ -136,18 +150,20 @@ Read SPEC.md for product requirements and PLAN.md for architecture decisions bef
 
 ### MCP Servers
 
-| Name | Install Command | Good For |
-|------|----------------|----------|
-| awslabs-core-mcp-server | `claude mcp add awslabs-core-mcp-server --scope project -- uvx awslabs.core-mcp-server@latest` | Any AWS project |
-| awslabs-aws-iac-mcp-server | `claude mcp add awslabs-aws-iac-mcp-server --scope project -- uvx awslabs.aws-iac-mcp-server@latest` | CDK, CloudFormation, SAM |
-| awslabs-dynamodb-mcp-server | `claude mcp add awslabs-dynamodb-mcp-server --scope project -- uvx awslabs.dynamodb-mcp-server@latest` | DynamoDB table design |
-| awslabs-aws-serverless-mcp-server | `claude mcp add awslabs-aws-serverless-mcp-server --scope project -- uvx awslabs.aws-serverless-mcp-server@latest --allow-write --allow-sensitive-data-access` | Lambda, SQS, API Gateway |
-| awslabs-aws-documentation-mcp-server | `claude mcp add awslabs-aws-documentation-mcp-server --scope project -- uvx awslabs.aws-documentation-mcp-server@latest` | AWS documentation lookup |
-| stripe | `claude mcp add --transport http --scope project stripe https://mcp.stripe.com/` | Stripe payments (run `claude /mcp` to authenticate after) |
-| sequential-thinking | `claude mcp add sequential-thinking --scope project -- npx -y @modelcontextprotocol/server-sequential-thinking` | Complex reasoning (any project) |
-| twilio | `claude mcp add twilio --scope project -- npx -y @twilio-alpha/mcp $SID/$KEY:$SECRET --services messaging` | SMS/voice (needs TWILIO_ACCOUNT_SID, TWILIO_API_KEY, TWILIO_API_SECRET) |
-| playwright | `claude mcp add playwright --scope project -- npx -y @anthropic-ai/mcp-server-playwright` | Browser testing |
-| postgres | `claude mcp add postgres --scope project -- npx -y @anthropic-ai/mcp-server-postgres` | PostgreSQL databases |
+Add entries to `.mcp.json` `mcpServers` object. Do NOT use `claude mcp add`.
+
+| Name | Config | Good For |
+|------|--------|----------|
+| awslabs-core-mcp-server | `{"type":"stdio","command":"uvx","args":["awslabs.core-mcp-server@latest"]}` | Any AWS project |
+| awslabs-aws-iac-mcp-server | `{"type":"stdio","command":"uvx","args":["awslabs.aws-iac-mcp-server@latest"]}` | CDK, CloudFormation, SAM |
+| awslabs-dynamodb-mcp-server | `{"type":"stdio","command":"uvx","args":["awslabs.dynamodb-mcp-server@latest"]}` | DynamoDB table design |
+| awslabs-aws-serverless-mcp-server | `{"type":"stdio","command":"uvx","args":["awslabs.aws-serverless-mcp-server@latest","--allow-write","--allow-sensitive-data-access"]}` | Lambda, SQS, API Gateway |
+| awslabs-aws-documentation-mcp-server | `{"type":"stdio","command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"]}` | AWS documentation lookup |
+| stripe | `{"type":"http","url":"https://mcp.stripe.com/"}` | Stripe payments (run `claude /mcp` to authenticate after) |
+| sequential-thinking | `{"type":"stdio","command":"npx","args":["-y","@modelcontextprotocol/server-sequential-thinking"]}` | Complex reasoning (any project) |
+| twilio | `{"type":"stdio","command":"npx","args":["-y","@twilio-alpha/mcp","$SID/$KEY:$SECRET","--services","messaging"]}` | SMS/voice (needs TWILIO_ACCOUNT_SID, TWILIO_API_KEY, TWILIO_API_SECRET) |
+| playwright | `{"type":"stdio","command":"npx","args":["-y","@anthropic-ai/mcp-server-playwright"]}` | Browser testing |
+| postgres | `{"type":"stdio","command":"npx","args":["-y","@anthropic-ai/mcp-server-postgres"]}` | PostgreSQL databases |
 
 ### Skills (downloadable from GitHub)
 
