@@ -206,13 +206,24 @@ Show matching "Slash-Commands" category entries, **capped at 10**. Always includ
 | Display Name | Sub-Category | Reason based on Description + project match | Primary Link |
 
 #### 4. Reference Resources (from community registry)
-Show matching entries from "CLAUDE.md Files", "Hooks", and "Workflows" categories. These are **NOT auto-installed** — present as useful links only.
+Show matching entries from "CLAUDE.md Files" and "Workflows" categories. These are **NOT auto-installed** — present as useful links only.
 
 | Resource | Category | Description | Link |
 |----------|----------|-------------|------|
 | Display Name | Category | Description excerpt | Primary Link |
 
-#### 5. Agents
+#### 5. Hooks (from community registry)
+Show matching "Hooks" category entries. Hooks are **shell commands that execute automatically** on events (e.g., pre/post tool calls), so they require individual user approval.
+
+For each matching hook, present:
+
+| Hook | Event | Shell Command | Description | Link |
+|------|-------|---------------|-------------|------|
+| Display Name | Event trigger (e.g., PreToolUse, PostToolUse) | The actual shell command(s) | What it does | Primary Link |
+
+After showing the table, prompt the user **per hook**: _"Install <name>? This will run `<shell command>` on every <event>. (y/n)"_. Only install hooks the user explicitly approves.
+
+#### 6. Agents
 From the hardcoded Agent Roles table below. Match each agent's **Match When** criteria against the raw fingerprint (dependencies, languages, infrastructure patterns).
 
 **Selection rules:**
@@ -220,7 +231,7 @@ From the hardcoded Agent Roles table below. Match each agent's **Match When** cr
 2. Always include at least one **implementation agent** (with Write/Edit tools) matching the project's primary language or activity — never recommend only read-only agents
 3. Cap at **6 agents total**; prioritize agents matching the project's primary activity
 
-#### 6. Plugins (from plugin marketplace)
+#### 7. Plugins (from plugin marketplace)
 
 If `plugins_available = true`, read `/tmp/claude-plugins-marketplace.json` and match plugins whose `tags` overlap with the search terms. Show matching entries:
 
@@ -232,7 +243,7 @@ Plugins are **NOT auto-installed** — present as links for the user to install 
 
 ---
 
-**If `registry_available = false`**: Skip sections 2-4 above. Instead, use the **Fallback Skills Registry** table below for skill recommendations. Note to the user that the community registry was unavailable and a limited fallback set is being used.
+**If `registry_available = false`**: Skip sections 2-5 above. Instead, use the **Fallback Skills Registry** table below for skill recommendations. Note to the user that the community registry was unavailable and a limited fallback set is being used.
 
 ---
 
@@ -279,6 +290,29 @@ Read `.mcp.json` first (create `{"mcpServers":{}}` if missing), merge new server
 
 **Reference Resources**: These are NOT auto-installed. Include links in the summary output so the user can explore them manually.
 
+**Hooks** (from community registry): For each hook the user approved in Step 3:
+
+1. WebFetch the Primary Link to inspect the hook source and extract:
+   - The event type (e.g., `PreToolUse`, `PostToolUse`, `Notification`)
+   - The matcher (which tools/events it targets, e.g., `Write`, `Bash`, or `*` for all)
+   - The shell command(s) to execute
+2. Read `.claude/settings.json` if it exists; otherwise start with `{}`
+3. Merge the hook into the `hooks` object under the appropriate event key:
+   ```json
+   {
+     "hooks": {
+       "PreToolUse": [
+         {
+           "matcher": "Write",
+           "hooks": ["./scripts/pre-write-check.sh $TOOL_INPUT"]
+         }
+       ]
+     }
+   }
+   ```
+4. If a hook with the same matcher and command already exists under that event, skip it (no duplicates)
+5. Write `.claude/settings.json` back
+
 **Skills** (from fallback registry, only if `registry_available = false`): Download SKILL.md files to `.claude/skills/<name>/SKILL.md`:
 ```bash
 mkdir -p .claude/skills/<name>
@@ -286,6 +320,17 @@ curl -sL -o .claude/skills/<name>/SKILL.md "<url>"
 ```
 
 **Agents**: Write `.md` files to `.claude/agents/<name>.md` with frontmatter and a prompt tailored to the detected project. See "Agent Prompt Guidelines" below.
+
+**Project Rules**: Write baseline rules to `CLAUDE.md` in the project root.
+
+1. Read `CLAUDE.md` if it exists; otherwise start with an empty string
+2. From the Baseline Rules table, collect all rules whose **Match When** condition is satisfied by the tech stack fingerprint
+3. For each rule, check if the text already appears in the existing `CLAUDE.md` content — skip duplicates
+4. If there are new rules to add:
+   - If the file is empty/new, write with a `# Project Rules` header followed by the rules as bullet points (`- <rule>`)
+   - If the file exists but has no `# Project Rules` section, append `\n\n# Project Rules\n` followed by the rules as bullet points
+   - If the file exists and already has a `# Project Rules` section, append the new rules as bullet points under that section (find the section, then insert after the last bullet in that section)
+5. Write the file back
 
 ### Step 5: UPDATE MANIFEST
 
@@ -298,6 +343,8 @@ Write `.claude/.setup-manifest.json` tracking everything installed:
   "skills": ["owasp-security"],
   "agents": ["frontend-dev", "backend-dev", "code-reviewer"],
   "commands": ["review", "commit", "test-plan"],
+  "hooks": [{"name": "pre-write-check", "event": "PreToolUse", "matcher": "Write", "command": "./scripts/pre-write-check.sh $TOOL_INPUT"}],
+  "rules_added": ["Follow existing file structure and naming conventions.", "Write unit tests for new features.", "Always output full code blocks."],
   "plugins": [],
   "references": [
     {"name": "React CLAUDE.md", "type": "CLAUDE.md Files", "link": "https://github.com/..."}
@@ -331,6 +378,10 @@ If `.claude/.setup-manifest.json` exists:
 4. Write the updated manifest
 
 Only touch items listed in the manifest. Never remove manually-added items.
+
+**Hooks**: Hooks listed in the manifest that are no longer recommended are removed from `.claude/settings.json` (match by event + matcher + command). If a hook was modified by the user (command changed), leave it in place.
+
+**Rules**: Rules written to `CLAUDE.md` are **not removed** on re-run — the user may have customized them. Only new rules that don't already appear in `CLAUDE.md` are appended.
 
 ## Agent Prompt Guidelines
 
@@ -470,3 +521,15 @@ Vetted server configs that take priority over registry results. Add entries to `
 | go-dev | Read, Write, Edit, Bash, Glob, Grep | Go is primary language (`go.mod` + `*.go` files) |
 | code-reviewer | Read, Grep, Glob, Bash | Always |
 | security-auditor | Read, Grep, Glob, Bash | Always |
+
+### Baseline Rules
+
+Rules to write to `CLAUDE.md` in the project root. Each rule is included only when its condition is met by the tech stack fingerprint.
+
+| Rule | Match When |
+|------|------------|
+| Follow existing file structure and naming conventions. | Always |
+| Use Typescript strict mode. | `typescript` in languages |
+| Use functional components and hooks. | `react`, `preact`, or `next` in dependencies |
+| Write unit tests for new features. | Always |
+| Always output full code blocks. | Always |
