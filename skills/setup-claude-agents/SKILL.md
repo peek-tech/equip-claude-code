@@ -247,7 +247,7 @@ Plugins are **NOT auto-installed** — present as links for the user to install 
 
 ---
 
-Note any items that need credentials (e.g., Twilio needs `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY`, `TWILIO_API_SECRET`).
+Note any items that need credentials (e.g., Twilio needs `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY`, `TWILIO_API_SECRET`). **Do NOT skip these** — still recommend them for installation. Servers that need credentials are installed with the config in `.mcp.json` and won't activate until the user provides the credentials, which is fine.
 
 **Ask the user to confirm before proceeding.**
 
@@ -257,7 +257,14 @@ After user confirmation:
 
 **MCP Servers — NEVER use `claude mcp add`** (it fails with a fatal "nested session" error). Write entries directly to `.mcp.json` in the project root using the Read and Write tools:
 
-Read `.mcp.json` first (create `{"mcpServers":{}}` if missing), merge new server entries from the registry into `mcpServers`, and write the file back. Example:
+Read `.mcp.json` first (create `{"mcpServers":{}}` if missing), merge new server entries from the registry into `mcpServers`, and write the file back.
+
+**Always install servers that need credentials.** Never skip a server just because it requires API keys or env vars. Write the config to `.mcp.json` — the server simply won't activate until the user provides credentials, which is the expected workflow. After writing the config, tell the user exactly what they need to do:
+
+1. Which environment variables to set and where to get them (link to the provider's docs/dashboard if known)
+2. Any post-install steps (e.g., "run `claude /mcp` to authenticate Stripe")
+
+Example `.mcp.json`:
 
 ```json
 {
@@ -266,6 +273,11 @@ Read `.mcp.json` first (create `{"mcpServers":{}}` if missing), merge new server
       "type": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "twilio": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@twilio-alpha/mcp", "$SID/$KEY:$SECRET", "--services", "messaging"]
     }
   }
 }
@@ -469,7 +481,7 @@ Response schema:
 | `packages[0].registryType == "npm"` | `{"type":"stdio","command":"npx","args":["-y","<identifier>"]}` |
 | `packages[0].registryType == "pypi"` | `{"type":"stdio","command":"uvx","args":["<identifier>"]}` |
 | `remotes[0].type == "streamable-http"` | `{"type":"http","url":"<url>"}` |
-| `environmentVariables` present | Note required env vars for user; add to config `"env"` if needed |
+| `environmentVariables` present | Still install the server. Note required env vars for user; add to config `"env"` if needed. Never skip a server because it needs credentials. |
 
 Prefer `packages` (local stdio) over `remotes` (HTTP) when both are available.
 
