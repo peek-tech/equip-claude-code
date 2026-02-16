@@ -1,4 +1,4 @@
-# setup-claude-agents
+# claude-equip
 
 A Claude Code plugin that scans your project, figures out what tech stack you're using, and installs the right agents, skills, slash commands, hooks, MCP servers, and project rules — so Claude Code understands your codebase from the start.
 
@@ -15,8 +15,8 @@ Falls back to a hardcoded registry if any source is unavailable.
 Add the marketplace, then install the plugin:
 
 ```
-/plugin marketplace add peek-tech/setup-claude-agents
-/plugin install setup-claude-agents@peek-tech-setup-claude-agents
+/plugin marketplace add peek-tech/claude-equip
+/plugin install claude-equip@peek-tech-claude-equip
 ```
 
 ## Usage
@@ -24,10 +24,24 @@ Add the marketplace, then install the plugin:
 In any project directory, run:
 
 ```
-/setup-claude-agents
+/equip
 ```
 
 The skill scans your project, shows you what it recommends, and **waits for your confirmation before installing anything**. Hooks require individual approval since they execute shell commands automatically.
+
+### Sub-commands
+
+Each artifact type also has a standalone sub-skill for focused use:
+
+| Command | What it does |
+|---------|-------------|
+| `/equip` | Full orchestrator — explore, recommend, install everything |
+| `/equip-mcp` | Install MCP servers from the registry into `.mcp.json` |
+| `/equip-skills` | Install agent skills from the community registry |
+| `/equip-commands` | Install slash commands from the community registry |
+| `/equip-hooks` | Install hooks with per-hook user approval |
+| `/equip-agents` | Create project-tailored agent `.md` files |
+| `/equip-rules` | Append baseline project rules to `CLAUDE.md` |
 
 ### Quality filtering
 
@@ -41,7 +55,7 @@ An optional argument controls how strictly MCP servers from the registry are vet
 | `unfiltered` | No quality checks — shows all active servers |
 
 ```
-/setup-claude-agents strict
+/equip strict
 ```
 
 Trusted publishers (Anthropic, AWS, Stripe, Microsoft, Twilio) bypass quality checks at all levels.
@@ -120,7 +134,7 @@ CLAUDE.md files, workflow guides, and plugins are shown as links for you to expl
 
 ## Re-running
 
-Running `/setup-claude-agents` again is safe. The skill reads its manifest (`.claude/.setup-manifest.json`) to see what it previously installed, compares against fresh recommendations, and:
+Running `/equip` again is safe. The skill reads its manifest (`.claude/.setup-manifest.json`) to see what it previously installed, compares against fresh recommendations, and:
 
 - **Removes** agents, skills, commands, MCP servers, and hooks that are no longer relevant
 - **Adds** new items that match your updated stack
@@ -145,8 +159,8 @@ The included `setup-local.sh` script is separate from the plugin. It configures 
 
 ```bash
 # Clone and run the local setup
-git clone https://github.com/peek-tech/setup-claude-agents.git
-cd setup-claude-agents
+git clone https://github.com/peek-tech/claude-equip.git
+cd claude-equip
 
 # Local Ollama
 ./setup-local.sh

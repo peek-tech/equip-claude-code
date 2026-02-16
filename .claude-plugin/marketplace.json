@@ -1,20 +1,26 @@
 {
-  "name": "setup-claude-agents",
+  "name": "claude-equip",
   "owner": {
     "name": "Peek Tech",
     "email": "tech@peek.com"
   },
   "metadata": {
-    "description": "Project-aware setup of Claude Code agents, skills, and MCP servers",
-    "version": "1.0.0"
+    "description": "Project-aware setup of Claude Code agents, skills, slash commands, hooks, and MCP servers",
+    "version": "2.0.0"
   },
   "plugins": [
     {
-      "name": "setup-claude-agents",
-      "description": "Analyze a project and install the right Claude Code agents, skills, and MCP servers from a curated registry",
+      "name": "claude-equip",
+      "description": "Analyze a project and install the right Claude Code agents, skills, slash commands, hooks, and MCP servers from community registries",
       "source": "./",
       "skills": [
-        "./skills/setup-claude-agents"
+        "./skills/equip",
+        "./skills/equip-mcp",
+        "./skills/equip-skills",
+        "./skills/equip-commands",
+        "./skills/equip-hooks",
+        "./skills/equip-agents",
+        "./skills/equip-rules"
       ]
     }
   ]

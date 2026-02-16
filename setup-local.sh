@@ -7,7 +7,7 @@ set -euo pipefail
 #
 # Machine-level infrastructure for routing Claude Code subagents to local
 # models via Ollama and Claude Code Router. Separate from per-project tooling
-# (which is handled by the /setup-claude-agents skill).
+# (which is handled by the /equip skill).
 #
 # Usage:
 #   ./setup-local.sh                                        # Ollama on same machine
@@ -295,7 +295,7 @@ if [[ -d "$AGENTS_DIR" ]]; then
   done
 else
   log_warn "No agents directory found at $AGENTS_DIR"
-  log_info "Run /setup-claude-agents first to create agents, then re-run this script."
+  log_info "Run /equip first to create agents, then re-run this script."
 fi
 
 # =============================================================================

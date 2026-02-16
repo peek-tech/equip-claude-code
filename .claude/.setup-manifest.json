@@ -1,0 +1,20 @@
+{
+  "mcp": ["sequential-thinking"],
+  "skills": [],
+  "agents": ["code-reviewer", "security-auditor"],
+  "commands": ["analyze-issue", "create-pr", "do-issue"],
+  "references": [
+    {"name": "Claude Code Handbook", "type": "Workflows & Knowledge Guides", "link": "https://nikiforovall.blog/claude-code-rules/"}
+  ],
+  "detected": {
+    "bash": true,
+    "shell": true,
+    "markdown": true,
+    "json": true,
+    "git": true
+  },
+  "registry_source": "awesome-claude-code-csv",
+  "registry_fetched_at": "2026-02-14T19:00:00Z",
+  "_generated_at": "2026-02-14T19:00:00Z",
+  "_comment": "Managed by /equip. Do not edit manually."
+}
