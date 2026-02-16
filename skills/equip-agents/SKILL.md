@@ -1,7 +1,7 @@
 ---
 name: equip-agents
 description: Create project-tailored agent .md files based on detected tech stack
-allowed-tools: Read, Write, Glob, Grep
+allowed-tools: Read, Write, Glob, Grep, Bash(mkdir *)
 ---
 
 # Create Agents

@@ -1,7 +1,7 @@
 ---
 name: equip-hooks
 description: Install hooks with per-hook user approval
-allowed-tools: Read, Write, Edit, WebFetch
+allowed-tools: Read, Write, Edit, WebFetch, Bash(mkdir *)
 ---
 
 # Install Hooks

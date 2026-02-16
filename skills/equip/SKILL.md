@@ -1,7 +1,7 @@
 ---
 name: equip
 description: Analyze a project and install the right Claude Code agents, skills, slash commands, hooks, MCP servers, and project rules from community registries
-allowed-tools: Read, Write, Edit, Glob, Grep, WebFetch, Bash(curl *), Bash(gh api *), Bash(mkdir *), Bash(ls *), Bash(wc *), Bash(rm *)
+allowed-tools: Read, Write, Edit, Glob, Grep, WebFetch, Bash(curl *), Bash(gh api *), Bash(gh search *), Bash(mkdir *), Bash(ls *), Bash(wc *), Bash(rm *), Bash(test *), Bash(cp *)
 ---
 
 # Equip

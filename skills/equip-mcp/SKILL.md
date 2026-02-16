@@ -1,7 +1,7 @@
 ---
 name: equip-mcp
 description: Install MCP servers from the Official MCP Registry into .mcp.json
-allowed-tools: Read, Write, Edit, Bash(curl *), Bash(gh api *)
+allowed-tools: Read, Write, Edit, Bash(curl *), Bash(gh api *), Bash(cp *)
 ---
 
 # Install MCP Servers

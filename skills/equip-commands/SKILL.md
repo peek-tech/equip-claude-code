@@ -1,7 +1,7 @@
 ---
 name: equip-commands
 description: Install slash commands from the community registry
-allowed-tools: Read, Write, Bash(curl *), Bash(mkdir *)
+allowed-tools: Read, Write, Bash(curl *), Bash(mkdir *), Bash(test *)
 ---
 
 # Install Slash Commands
